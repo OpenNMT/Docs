@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Advanced - OpenNMT</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Advanced";
+    var mkdocs_page_input_path = "Advanced.md";
+    var mkdocs_page_url = "/Advanced/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> OpenNMT</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Advanced</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#configuration-files">Configuration files</a></li>
+    
+
+    <li class="toctree-l2"><a href="#data-preparation">Data Preparation</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#word-features">Word features</a></li>
+        
+        </ul>
+    
+
+    <li class="toctree-l2"><a href="#training">Training</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#pre-trained-embeddings">Pre-trained embeddings</a></li>
+        
+            <li><a class="toctree-l3" href="#word-features-embeddings">Word features embeddings</a></li>
+        
+            <li><a class="toctree-l3" href="#multi-gpu-training">Multi-GPU training</a></li>
+        
+            <li><a class="toctree-l3" href="#training-from-a-saved-model">Training from a saved model</a></li>
+        
+        </ul>
+    
+
+    <li class="toctree-l2"><a href="#translation">Translation</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#translation-and-beam-search">Translation and beam search</a></li>
+        
+            <li><a class="toctree-l3" href="#translating-unknown-words">Translating unknown words</a></li>
+        
+            <li><a class="toctree-l3" href="#releasing-models">Releasing models</a></li>
+        
+            <li><a class="toctree-l3" href="#c-translator">C++ translator</a></li>
+        
+            <li><a class="toctree-l3" href="#translation-rest-server">Translation REST server</a></li>
+        
+            <li><a class="toctree-l3" href="#translation-zmq-server">Translation ZMQ server</a></li>
+        
+        </ul>
+    
+
+    <li class="toctree-l2"><a href="#extending-the-system-image-to-text">Extending the system (Image-to-Text)</a></li>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../Guide/">Guide</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">OpenNMT</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Advanced</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <ul>
+<li>TOC
+{:toc}</li>
+</ul>
+<p>[Note: these features are currently only supported in the main Lua/Torch version of the library. If there is a feature you would like in Python, please vote for it in our <a href="forum.opennmt.net">forum</a>.]</p>
+<h2 id="configuration-files">Configuration files</h2>
+<p>When using the main scripts <code>preprocess.lua</code>, <code>train.lua</code> and <code>translate.lua</code>, you can pass your options using a configuration file. The file has a simple key-value syntax with one <code>option = value</code> per line. Here is an example:</p>
+<pre><code>$ cat generic.txt
+rnn_size = 600
+layers = 4
+brnn = true
+save_model = generic
+</code></pre>
+
+<p>It handles empty line and ignore lines prefixed with <code>#</code>.</p>
+<p>You can then pass this file along other options on the command line:</p>
+<pre><code>th train.lua -config generic.txt -data data/demo-train.t7 -gpuid 1
+</code></pre>
+
+<p>If an option appears both in the file and on the command line, the file takes priority.</p>
+<h2 id="data-preparation">Data Preparation</h2>
+<h3 id="word-features">Word features</h3>
+<p>OpenNMT supports additional features on source and target words in the form of <strong>discrete labels</strong>.</p>
+<ul>
+<li>On the source side, these features act as additional information to the encoder. An
+embedding will be optimized for each label and then fed as additional source input
+alongside the word it annotates.</li>
+<li>On the target side, these features will be predicted by the network. The
+decoder is then able to decode a sentence and annotate each word.</li>
+</ul>
+<p>To use additional features, directly modify your data by appending labels to each word with
+the special character <code>￨</code> (unicode character FFE8). There can be an arbitrary number of additional
+features in the form <code>word￨feat1￨feat2￨...￨featN</code> but each word must have the same number of
+features and in the same order. Source and target data can have a different number of additional features.</p>
+<p>As an example, see <code>data/src-train-case.txt</code> which uses a separate feature
+to represent the case of each word. Using case as a feature is a way to optimize the word
+dictionary (no duplicated words like "the" and "The") and gives the system an additional
+information that can be useful to optimize its objective function.</p>
+<pre><code>it￨C is￨l not￨l acceptable￨l that￨l ,￨n with￨l the￨l help￨l of￨l the￨l national￨l bureaucracies￨l ,￨n parliament￨C &amp;apos;s￨l legislative￨l prerogative￨l should￨l be￨l made￨l null￨l and￨l void￨l by￨l means￨l of￨l implementing￨l provisions￨l whose￨l content￨l ,￨n purpose￨l and￨l extent￨l are￨l not￨l laid￨l down￨l in￨l advance￨l .￨n
+</code></pre>
+
+<p>You can generate this case feature with OpenNMT's tokenization script and the <code>-case_feature</code> flag.</p>
+<h4 id="vocabulary">Vocabulary</h4>
+<p>By default, features vocabulary size is unlimited. Depending on the type of features you are using, you may want to limit their vocabulary during the preprocessing with the <code>-src_vocab_size</code> and <code>-tgt_vocab_size</code> options in the format <code>word_vocab_size[,feat1_vocab_size[,feat2_vocab_size[...]]]</code>. For example:</p>
+<pre><code># unlimited source features vocabulary size
+-src_vocab_size 50000
+
+# first feature vocabulary is limited to 60, others are unlimited
+-src_vocab_size 50000,60
+
+# second feature vocabulary is limited to 100, others are unlimited
+-src_vocab_size 50000,0,100
+
+# limit vocabulary size of the first and second feature
+-src_vocab_size 50000,60,100
+</code></pre>
+
+<h2 id="training">Training</h2>
+<h3 id="pre-trained-embeddings">Pre-trained embeddings</h3>
+<p>When training with small amounts of data, performance can be improved
+by starting with pretrained embeddings. The arguments
+<code>-pre_word_vecs_dec</code> and <code>-pre_word_vecs_enc</code> can be used to specify
+these files. The pretrained embeddings must be manually constructed
+torch serialized matrices that correspond to the src and tgt
+dictionary files. By default these embeddings will be updated during
+training, but they can be held fixed using <code>-fix_word_vecs_enc</code> and
+<code>-fix_word_vecs_dec</code>.</p>
+<h3 id="word-features-embeddings">Word features embeddings</h3>
+<p>The feature embedding size is automatically computed based on the number of values the feature takes. The default size reduction works well for features with few values like the case or POS. For other features, you may want to manually choose the embedding size with the <code>-src_word_vec_size</code> and <code>-tgt_word_vec_size</code> options. They behave similarly to <code>-src_vocab_size</code> with a comma-separated list of embedding size: <code>word_vec_size[,feat1_vec_size[,feat2_vec_size[...]]]</code>.</p>
+<p>By default each embedding is concatenated. You can choose to sum them by setting <code>-feat_merge sum</code>. Note that in this case each feature embedding must have the same dimension. You can set the common embedding size with <code>-feat_vec_size</code>.</p>
+<h3 id="multi-gpu-training">Multi-GPU training</h3>
+<p>OpenNMT supports <em>data parallelism</em> during the training. This technique allows the use of several GPUs by training batches in parallel on different <em>network replicas</em>. To enable this option, assign a list of comma-separated GPU identifier to the <code>-gpuid</code> option. For example:</p>
+<pre><code>th train.lua -data data/demo-train.t7 -save_model demo -gpuid 1,2,4
+</code></pre>
+
+<p>will use the first, the second and the fourth GPU of the machine.</p>
+<p>There are 2 different modes:</p>
+<ul>
+<li><strong>synchronous parallelism</strong> (default): in this mode, each replica processes in parallel a different batch at each iteration. The gradients from each replica are accumulated, and parameters updated and synchronized. Note that when using <code>N</code> GPU(s), the actual batch size is <code>N * max_batch_size</code>.</li>
+<li><strong>asynchronous parallelism</strong> (<code>-async_parallel</code> flag): in this mode, the different replicas are independently
+calculating their own gradient, updating a master copy of the parameters and getting updated values
+of the parameters. Note that a GPU core is dedicated to storage of the master copy of the parameters and is not used for training. Also, to enable convergence at the beginning of the training, only one replica is working for the first <code>-async_parallel_minbatch</code> iterations.</li>
+</ul>
+<h3 id="training-from-a-saved-model">Training from a saved model</h3>
+<p>By default, OpenNMT saves a checkpoint at the end of every epoch. For more frequent saves, you can use the <code>-save_every</code> option which defines the number of iterations after which the training saves a checkpoint.</p>
+<p>There are several reasons one may want to train from a saved model with the <code>-train_from</code> option:</p>
+<ul>
+<li>continuing a stopped training</li>
+<li>continuing the training with a smaller batch size</li>
+<li>training a model on new data (incremental adaptation)</li>
+<li>starting a training from pre-trained parameters</li>
+<li>etc.</li>
+</ul>
+<h4 id="resuming-a-stopped-training">Resuming a stopped training</h4>
+<p>It is common that a training stops: crash, server reboot, user action, etc. In this case, you may want to continue the training for more epochs by using using the <code>-continue</code> option. For example:</p>
+<pre><code># start the initial training
+th train.lua -gpuid 1 -data data/demo-train.t7 -save_model demo -save_every 50
+
+# train for several epochs...
+
+# need to reboot the server!
+
+# continue the training from the last checkpoint
+th train.lua -gpuid 1 -data data/demo-train.t7 -save_model demo -save_every 50 -train_from demo_checkpoint.t7 -continue
+</code></pre>
+
+<p>The <code>-continue</code> flag ensures that the training continues with the same configuration and optimization states. In particular, the following options are set to their last known value:</p>
+<ul>
+<li><code>curriculum</code></li>
+<li><code>learning_rate_decay</code></li>
+<li><code>learning_rate</code></li>
+<li><code>optim</code></li>
+<li><code>start_decay_at</code></li>
+<li><code>start_epoch</code></li>
+<li><code>start_iteration</code></li>
+</ul>
+<p><strong>Note:</strong> the <code>-end_epoch</code> value is not automatically set as the user may want to continue its training for more epochs past the end.</p>
+<h4 id="training-from-pre-trained-parameters">Training from pre-trained parameters</h4>
+<p>Another use case it to use a base model and train it further with new training options (in particular the optimization method and the learning rate). Using <code>-train_from</code> without <code>-continue</code> will start a new training with parameters initialized from a pre-trained model.</p>
+<p><em>Note that the model topology and dropout value can not be changed during a retraining.</em></p>
+<h2 id="translation">Translation</h2>
+<h3 id="translation-and-beam-search">Translation and beam search</h3>
+<p>By default translation is done using beam search. The <code>-beam_size</code>
+option can be used to trade-off translation time and search accuracy,
+with <code>-beam_size 1</code> giving greedy search. The small default beam size
+is often enough in practice. Beam search can also be used to provide
+an approximate n-best list of translations by setting <code>-n_best</code>
+greater than 1. For analysis, the translation command also takes an
+oracle/gold <code>-tgt</code> file and will output a comparison of scores.</p>
+<h3 id="translating-unknown-words">Translating unknown words</h3>
+<p>The default translation mode allows the model to produce the UNK
+symbol when it is not sure of the specific target word. Often times
+UNK symbols will correspond to proper names that can be directly
+transposed between languages. The <code>-replace_unk</code> option will
+substitute UNK with a source word using the attention of the
+model.</p>
+<p>Alternatively, advanced users may prefer to provide a
+preconstructed phrase table from an external aligner (such as
+fast_align) using the <code>-phrase_table</code> option to allow for non-identity replacement.
+Instead of copying the source token with the highest attention, it will
+lookup in the phrase table for a possible translation. If a valid replacement
+is not found then the source token will be copied.</p>
+<p>The phrase table is a file with one translation per line in the format:</p>
+<pre><code>source|||target
+</code></pre>
+
+<p>Where <code>source</code> and <code>target</code> are <strong>case sensitive</strong> and <strong>single</strong> tokens.</p>
+<h3 id="releasing-models">Releasing models</h3>
+<p>After training a model, you may want to release it for inference only by using the <code>release_model.lua</code> script. A released model takes less space on disk and is compatible with CPU translation.</p>
+<pre><code>th tools/release_model.lua -model model.t7 -gpuid 1
+</code></pre>
+
+<p>By default, it will create a <code>model_release.t7</code> file. See <code>th tools/release_model.lua -h</code> for advanced options.</p>
+<h3 id="c-translator">C++ translator</h3>
+<p>OpenNMT also includes an optimized C++-only <a href="https://github.com/opennmt/ctranslate">translator</a> for CPU deployment. The code has no dependencies on Torch or Lua and can be run out of the box with standard OpenNMT models. Simply follow the CPU instructions above to release the model, and then use the <a href="https://github.com/opennmt/ctranslate">installation instructions</a>.</p>
+<p>The C++ version takes the same arguments as <code>translate.lua</code>.</p>
+<pre><code>cli/translate --model model_release.t7 --src src-val.txt
+</code></pre>
+
+<h3 id="translation-rest-server">Translation REST server</h3>
+<p>OpenNMT includes a REST translation server for running translate remotely.
+You can use an easy REST syntax to simply send plain text.
+Sentence will be tokenized, translated and then detokenized.</p>
+<p>The server uses the restserver-xavante dependancy, you need to install it by running:</p>
+<pre><code>luarocks install restserver-xavante
+</code></pre>
+
+<p>The translation server can be run using any of the arguments from <code>tokenize.lua</code> or <code>translate.lua</code>. </p>
+<pre><code>th tools/rest_translation_server.lua -model ../Recipes/baseline-1M-enfr/exp/model-baseline-1M-enfr_epoch13_3.44.t7 -gpuid 1 -host ... -port -case_feature -bpe_model ...
+</code></pre>
+
+<p><strong>Note:</strong> the default host is set to <code>127.0.0.1</code> , default port is set to <code>7784</code>.</p>
+<p>You can test it with a curl command locally or from any other client.</p>
+<pre><code class="curl">curl -v -H &quot;Content-Type: application/json&quot; -X POST -d '{ &quot;src&quot; : &quot;Hello World }' http://IP_address:7784/translator/translate
+</code></pre>
+
+<p>Answer will be embeeded in a JSON format, translated sentence in the "tgt" section.</p>
+<p>Additionnally you can get the attention matrix with the <code>-withAttn</code> option in the server command line. </p>
+<h3 id="translation-zmq-server">Translation ZMQ server</h3>
+<p>OpenNMT includes a translation server for running translate remotely. This also is an
+easy way to use models from other languages such as Java and Python. </p>
+<p>The server uses the 0MQ for RPC. You can install 0MQ and the Lua bindings on Ubuntu by running:</p>
+<pre><code>sudo apt-get install libzmq-dev
+luarocks install dkjson
+luarocks install lua-zmq ZEROMQ_LIBDIR=/usr/lib/x86_64-linux-gnu/ ZEROMQ_INCDIR=/usr/include
+</code></pre>
+
+<p>The translation server can be run using any of the arguments from <code>translate.lua</code>. </p>
+<pre><code>th tools/translation_server.lua -host ... -port ... -model ...
+</code></pre>
+
+<p><strong>Note:</strong> the default host is set to <code>127.0.0.1</code> which only allows local access. If you want to support remote access, use <code>0.0.0.0</code> instead.</p>
+<p>It runs as a message queue that takes in a JSON batch of src sentences. For example the following 5 lines of Python
+code can be used to send a single sentence for translation.</p>
+<pre><code class="python">import zmq, sys, json
+sock = zmq.Context().socket(zmq.REQ)
+sock.connect(&quot;tcp://127.0.0.1:5556&quot;)
+sock.send(json.dumps([{&quot;src&quot;: &quot; &quot;.join(sys.argv[1:])}]))
+print sock.recv()
+</code></pre>
+
+<p>For a longer example, see our <a href="http://github.com/OpenNMT/Server/">Python/Flask server</a> in development. </p>
+<h2 id="extending-the-system-image-to-text">Extending the system (Image-to-Text)</h2>
+<p>OpenNMT is explicitly separated out into a library and application 
+section. All modeling and training code can be directly used within
+other Torch applications. </p>
+<p>As an example use case we have released an extension for translating
+from images-to-text. This model replaces the source-side word
+embeddings with a convolutional image network. The full model is
+available at <a href="https://github.com/opennmt/im2text">OpenNMT/im2text</a>.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../Guide/" class="btn btn-neutral float-right" title="Guide">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../Guide/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../js/theme.js"></script>
+      <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+</body>
+</html>
