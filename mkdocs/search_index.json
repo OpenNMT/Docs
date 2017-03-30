@@ -1,0 +1,64 @@
+{
+    "docs": [
+        {
+            "location": "/Guide/",
+            "text": "TOC\n{:toc}\n\n\n\n\nInstallation\n\n\nOpenNMT only requires a vanilla \nTorch\n install. It makes use of the libraries: nn, nngraph, and cunn. We highly recommend use of GPU-based training.\n\n\nAlternatively there is a Docker container available at \nhere\n.\n\n\nQuickstart\n\n\nOpenNMT consists of three commands:\n\n\n1) Preprocess the data.\n\n\nth preprocess.lua -train_src_file data/src-train.txt -train_targ_file data/targ-train.txt -valid_src_file data/src-val.txt -valid_targ_file data/targ-val.txt -output_file data/demo\n\n\n2) Train the model.\n\n\nth train.lua -data data/demo-train.t7 -save_file model\n\n\n3) Translate sentences.\n\n\nth evaluate.lua -model model_final.t7 -src_file data/src-val.txt -output_file pred.txt -src_dict data/demo.src.dict -targ_dict data/demo.targ.dict\n\n\nLet's walk through each of these commands in more detail. \n\n\nStep 1: Preprocess Data\n\n\nth preprocess.lua -train_src_file data/src-train.txt -train_targ_file data/targ-train.txt -valid_src_file data/src-val.txt -valid_targ_file data/targ-val.txt -output_file data/demo\n\n\n\n\nThe \npreprocess.lua\n command can also take additional \noptions\n.  \n\n\nHere we are working with example data in \ndata/\n folder.\nThe data consists of a source (\nsrc\n) and target (\ntarg\n) data.\nThis will take the source/target train/valid files (\nsrc-train.txt, targ-train.txt,\nsrc-val.txt, targ-val.txt\n). There is one sentence per line, and words are space separated.\n\n\n\n\nhead -n 3 data/targ-train.txt\n\n\n\n\nEs geht nicht an , dass \u00fcber Ausf\u00fchrungsbestimmungen , deren Inhalt , Zweck und Ausma\u00df vorher nicht bestimmt ist , zusammen mit den nationalen B\u00fcrokratien das Gesetzgebungsrecht des Europ\u00e4ischen Parlaments ausgehebelt wird .\nMeistertrainer und leitender Dozent des italienischen Fitnessverbands f\u00fcr Aerobic , Gruppenfitness , Haltungsgymnastik , Stretching und Pilates; arbeitet seit 2004 bei Antiche Terme als Personal Trainer und Lehrer f\u00fcr Stretching , Pilates und R\u00fcckengymnastik .\nAlso kam ich nach S\u00fcdafrika \" , erz\u00e4hlte eine Frau namens Grace dem Human Rights Watch-Mitarbeiter Gerry Simpson , der die Probleme der zimbabwischen Fl\u00fcchtlinge in S\u00fcdafrika untersucht .\n\n\n\n\n\n\nhead -n 3 data/src-train.txt\n\n\n\n\nIt is not acceptable that , with the help of the national bureaucracies , Parliament &apos;s legislative prerogative should be made null and void by means of implementing provisions whose content , purpose and extent are not laid down in advance .\nFederal Master Trainer and Senior Instructor of the Italian Federation of Aerobic Fitness , Group Fitness , Postural Gym , Stretching and Pilates; from 2004 , he has been collaborating with Antiche Terme as personal Trainer and Instructor of Stretching , Pilates and Postural Gym .\n&quot; Two soldiers came up to me and told me that if I refuse to sleep with them , they will kill me . They beat me and ripped my clothes .\n\n\n\n\nAfter running the system will build the following files:\n\n\n\n\ndemo.src.dict\n: Dictionary of source vocab to index mappings.\n\n\ndemo.targ.dict\n: Dictionary of target vocab to index mappings.\n\n\ndemo-train.t7\n: serialized Torch file containing vocabulary, training and validation data\n\n\n\n\nThe \n*.dict\n files are needed to check vocabulary, or to preprocess data with fixed vocabularies.\nThese files are simple human-readable dictionaries.\n\n\n\n\nhead -n 10 data/demo.src.dict\n\n\n\n\n<blank> 1\n<unk> 2\n<s> 3\n</s> 4\nIt 5\nis 6\nnot 7\nacceptable 8\nthat 9\n, 10\nwith 11\n\n\n\n\nInternally the system never touches the words themselves, but uses these indices.\n\n\nStep 2: Train the model\n\n\n\n\nth train.lua -data_file data/demo-train.t7 -savefile demo-model\n\n\n\n\nThe main train command is quite simple. Minimally it takes a data file\nand a save file.  This will run the default model, which consists of a\n2-layer LSTM with 500 hidden units on both the encoder/decoder. You\ncan also add \n-gpuid 1\n to use (say) GPU 1.\n\n\nThe \ntrain.lua\n command can take many additional \noptions\n\ndescribing the desired model size and structure as\nwell as the training procedure and initialization.\n\n\nStep 3: Translate\n\n\n\n\nth evaluate.lua -model demo-model_final.t7 -src_file data/src-val.txt -output_file pred.txt -src_dict data/demo.src.dict -targ_dict data/demo.targ.dict\n\n\n\n\nNow you have a model which you can use to predict on new data. We do this by running beam search.\n\n\nThis will output predictions into \npred.txt\n. The predictions are going to be quite terrible,\nas the demo dataset is small. Try running on some larger datasets! For example you can download\nmillions of parallel sentences for \ntranslation\n\nor \nsummarization\n.\n\n\nThe \nevaluate.lua\n command can take  more \noptions\n\ndescribing the beam search procedure.\n\n\nAdditional Features\n\n\nInitialization with Word Embeddings\n\n\nWord Features\n\n\nCompressing Models\n\n\nEvaluation\n\n\nExtending the Model",
+            "title": "Guide"
+        },
+        {
+            "location": "/Guide/#installation",
+            "text": "OpenNMT only requires a vanilla  Torch  install. It makes use of the libraries: nn, nngraph, and cunn. We highly recommend use of GPU-based training.  Alternatively there is a Docker container available at  here .",
+            "title": "Installation"
+        },
+        {
+            "location": "/Guide/#quickstart",
+            "text": "OpenNMT consists of three commands:  1) Preprocess the data.  th preprocess.lua -train_src_file data/src-train.txt -train_targ_file data/targ-train.txt -valid_src_file data/src-val.txt -valid_targ_file data/targ-val.txt -output_file data/demo  2) Train the model.  th train.lua -data data/demo-train.t7 -save_file model  3) Translate sentences.  th evaluate.lua -model model_final.t7 -src_file data/src-val.txt -output_file pred.txt -src_dict data/demo.src.dict -targ_dict data/demo.targ.dict  Let's walk through each of these commands in more detail.",
+            "title": "Quickstart"
+        },
+        {
+            "location": "/Guide/#step-1-preprocess-data",
+            "text": "th preprocess.lua -train_src_file data/src-train.txt -train_targ_file data/targ-train.txt -valid_src_file data/src-val.txt -valid_targ_file data/targ-val.txt -output_file data/demo  The  preprocess.lua  command can also take additional  options .    Here we are working with example data in  data/  folder.\nThe data consists of a source ( src ) and target ( targ ) data.\nThis will take the source/target train/valid files ( src-train.txt, targ-train.txt,\nsrc-val.txt, targ-val.txt ). There is one sentence per line, and words are space separated.   head -n 3 data/targ-train.txt   Es geht nicht an , dass \u00fcber Ausf\u00fchrungsbestimmungen , deren Inhalt , Zweck und Ausma\u00df vorher nicht bestimmt ist , zusammen mit den nationalen B\u00fcrokratien das Gesetzgebungsrecht des Europ\u00e4ischen Parlaments ausgehebelt wird .\nMeistertrainer und leitender Dozent des italienischen Fitnessverbands f\u00fcr Aerobic , Gruppenfitness , Haltungsgymnastik , Stretching und Pilates; arbeitet seit 2004 bei Antiche Terme als Personal Trainer und Lehrer f\u00fcr Stretching , Pilates und R\u00fcckengymnastik .\nAlso kam ich nach S\u00fcdafrika \" , erz\u00e4hlte eine Frau namens Grace dem Human Rights Watch-Mitarbeiter Gerry Simpson , der die Probleme der zimbabwischen Fl\u00fcchtlinge in S\u00fcdafrika untersucht .   head -n 3 data/src-train.txt   It is not acceptable that , with the help of the national bureaucracies , Parliament &apos;s legislative prerogative should be made null and void by means of implementing provisions whose content , purpose and extent are not laid down in advance .\nFederal Master Trainer and Senior Instructor of the Italian Federation of Aerobic Fitness , Group Fitness , Postural Gym , Stretching and Pilates; from 2004 , he has been collaborating with Antiche Terme as personal Trainer and Instructor of Stretching , Pilates and Postural Gym .\n&quot; Two soldiers came up to me and told me that if I refuse to sleep with them , they will kill me . They beat me and ripped my clothes .  After running the system will build the following files:   demo.src.dict : Dictionary of source vocab to index mappings.  demo.targ.dict : Dictionary of target vocab to index mappings.  demo-train.t7 : serialized Torch file containing vocabulary, training and validation data   The  *.dict  files are needed to check vocabulary, or to preprocess data with fixed vocabularies.\nThese files are simple human-readable dictionaries.   head -n 10 data/demo.src.dict   <blank> 1\n<unk> 2\n<s> 3\n</s> 4\nIt 5\nis 6\nnot 7\nacceptable 8\nthat 9\n, 10\nwith 11  Internally the system never touches the words themselves, but uses these indices.",
+            "title": "Step 1: Preprocess Data"
+        },
+        {
+            "location": "/Guide/#step-2-train-the-model",
+            "text": "th train.lua -data_file data/demo-train.t7 -savefile demo-model   The main train command is quite simple. Minimally it takes a data file\nand a save file.  This will run the default model, which consists of a\n2-layer LSTM with 500 hidden units on both the encoder/decoder. You\ncan also add  -gpuid 1  to use (say) GPU 1.  The  train.lua  command can take many additional  options \ndescribing the desired model size and structure as\nwell as the training procedure and initialization.",
+            "title": "Step 2: Train the model"
+        },
+        {
+            "location": "/Guide/#step-3-translate",
+            "text": "th evaluate.lua -model demo-model_final.t7 -src_file data/src-val.txt -output_file pred.txt -src_dict data/demo.src.dict -targ_dict data/demo.targ.dict   Now you have a model which you can use to predict on new data. We do this by running beam search.  This will output predictions into  pred.txt . The predictions are going to be quite terrible,\nas the demo dataset is small. Try running on some larger datasets! For example you can download\nmillions of parallel sentences for  translation \nor  summarization .  The  evaluate.lua  command can take  more  options \ndescribing the beam search procedure.",
+            "title": "Step 3: Translate"
+        },
+        {
+            "location": "/Guide/#additional-features",
+            "text": "",
+            "title": "Additional Features"
+        },
+        {
+            "location": "/Guide/#initialization-with-word-embeddings",
+            "text": "",
+            "title": "Initialization with Word Embeddings"
+        },
+        {
+            "location": "/Guide/#word-features",
+            "text": "",
+            "title": "Word Features"
+        },
+        {
+            "location": "/Guide/#compressing-models",
+            "text": "",
+            "title": "Compressing Models"
+        },
+        {
+            "location": "/Guide/#evaluation",
+            "text": "",
+            "title": "Evaluation"
+        },
+        {
+            "location": "/Guide/#extending-the-model",
+            "text": "",
+            "title": "Extending the Model"
+        }
+    ]
+}
